@@ -76,6 +76,8 @@ class MainActivity:ComponentActivity(){
  var tab by remember{mutableStateOf("Сегодня")}
  var plans by remember{mutableStateOf(loadPlans(p))}
  var logs by remember{mutableStateOf(loadLogs(p))}
+ var customExercises by remember{mutableStateOf(loadCustom(p))}
+ val allExercises = catalog + customExercises
  var editor by remember{mutableStateOf<Plan?>(null)}
  var live by remember{mutableStateOf(loadLive(p))}
  var detail by remember{mutableStateOf<Ex?>(null)}
@@ -83,9 +85,10 @@ class MainActivity:ComponentActivity(){
  fun savePlans(v:List<Plan>){plans=v;p.edit().putString("plans",plansJson(v)).apply()}
  fun saveLive(v:Live?){live=v;p.edit().putString("live",if(v==null)"" else liveJson(v)).apply()}
  fun saveLogs(v:List<Log>){logs=v;p.edit().putString("logs",logsJson(v)).apply()}
+ fun saveCustom(v:List<Ex>){customExercises=v;p.edit().putString("custom_exercises",customJson(v)).apply()}
  fun start(plan:Plan){saveLive(Live(plan.id,plan.name,SimpleDateFormat("dd.MM.yyyy HH:mm",Locale.getDefault()).format(Date()),plan.exercises.map{e->LiveEx(e.name,e.rest,List(e.sets.coerceIn(1,20)){SetRow(weight=e.weight)})}))}
  if(detail!=null){ExerciseInfo(detail!!){detail=null};return}
- if(editor!=null){PlanEdit(editor!!,{editor=null},{v->savePlans(plans.filterNot{it.id==v.id}+v);editor=null;tab="План"},{id->savePlans(plans.filterNot{it.id==id});editor=null});return}
+ if(editor!=null){PlanEdit(editor!!,allExercises,{editor=null},{v->savePlans(plans.filterNot{it.id==v.id}+v);editor=null;tab="План"},{id->savePlans(plans.filterNot{it.id==id});editor=null});return}
  if(live!=null){LiveScreen(live!!,{saveLive(it)},{ 
   val s=live!!
   val vol=s.exercises.sumOf{e->e.sets.filter{it.done}.sumOf{(it.weight.toDoubleOrNull()?:0.0)*(it.reps.toDoubleOrNull()?:0.0)}}
@@ -104,7 +107,7 @@ class MainActivity:ComponentActivity(){
    }
    when(tab){
     "Сегодня"->Home(plans,logs,weight,{weight=it;p.edit().putString("weight",it).apply()},{editor=Plan(System.currentTimeMillis(),"",emptyList());tab="План"},{start(it)})
-    "План"->PlanList(plans,{editor=Plan(System.currentTimeMillis(),"",emptyList())},{editor=it},{start(it)},{detail=it})
+    "План"->PlanList(plans,allExercises,{editor=Plan(System.currentTimeMillis(),"",emptyList())},{editor=it},{start(it)},{detail=it},{saveCustom(customExercises+it)})
     "Журнал"->Journal(logs)
     else->Numbers(logs,plans)
    }
@@ -132,11 +135,17 @@ class MainActivity:ComponentActivity(){
 @Composable private fun MainButton(label:String,onClick:()->Unit){Button(onClick,Modifier.fillMaxWidth().height(48.dp),shape=RoundedCornerShape(9.dp),colors=ButtonDefaults.buttonColors(containerColor=accent,contentColor=bg)){Text(label,fontWeight=FontWeight.Black,letterSpacing=1.sp)}}
 @Composable private fun fieldColors()=OutlinedTextFieldDefaults.colors(focusedBorderColor=accent,unfocusedBorderColor=panel2,focusedLabelColor=accent,cursorColor=accent,focusedTextColor=fg,unfocusedTextColor=fg)
 
-@Composable private fun PlanList(plans:List<Plan>,create:()->Unit,edit:(Plan)->Unit,start:(Plan)->Unit,detail:(Ex)->Unit){
+@Composable private fun PlanList(plans:List<Plan>,library:List<Ex>,create:()->Unit,edit:(Plan)->Unit,start:(Plan)->Unit,detail:(Ex)->Unit,addCustom:(Ex)->Unit){
+ var adding by remember{mutableStateOf(false)}
+ var exName by remember{mutableStateOf("")}
+ var exType by remember{mutableStateOf("STRONGMAN")}
+ var exGear by remember{mutableStateOf("")}
+ var exMuscles by remember{mutableStateOf("")}
+ var exCue by remember{mutableStateOf("")}
  Column(Modifier.fillMaxSize().padding(horizontal=18.dp)){
   Row(Modifier.fillMaxWidth().padding(vertical=12.dp),verticalAlignment=Alignment.CenterVertically){Column(Modifier.weight(1f)){Text("ПЛАН",color=accent,fontSize=10.sp,fontWeight=FontWeight.Bold,letterSpacing=2.sp);Text("Мои программы",color=fg,fontSize=26.sp,fontWeight=FontWeight.Black)};Button(create,colors=ButtonDefaults.buttonColors(containerColor=accent,contentColor=bg)){Text("+ НОВЫЙ")}}
   LazyColumn{items(plans){pl->CardPanel{Text(pl.name,color=fg,fontSize=20.sp,fontWeight=FontWeight.Bold);Text(pl.exercises.size.toString()+" упражнений · "+pl.exercises.sumOf{it.sets}+" подходов",color=dim,fontSize=12.sp);pl.exercises.take(3).forEach{Text("— "+it.name,color=dim,fontSize=12.sp)};Row{TextButton({edit(pl)}){Text("ИЗМЕНИТЬ",color=accent)};TextButton({start(pl)}){Text("НАЧАТЬ",color=accent)}}}}
-   item{Spacer(Modifier.height(12.dp));Text("БИБЛИОТЕКА УПРАЖНЕНИЙ",color=accent,fontSize=11.sp,fontWeight=FontWeight.Bold,letterSpacing=1.5.sp);catalog.forEach{e->Row(Modifier.fillMaxWidth().clickable{detail(e)}.padding(vertical=11.dp),verticalAlignment=Alignment.CenterVertically){Column(Modifier.weight(1f)){Text(e.name,color=fg,fontWeight=FontWeight.SemiBold);Text(e.type+" · "+e.gear,color=dim,fontSize=11.sp)};Text("›",color=accent,fontSize=22.sp)};HorizontalDivider(color=panel2)}}
+   item{Spacer(Modifier.height(12.dp));Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){Text("БИБЛИОТЕКА УПРАЖНЕНИЙ",color=accent,fontSize=11.sp,fontWeight=FontWeight.Bold,letterSpacing=1.5.sp,modifier=Modifier.weight(1f));TextButton({adding=true}){Text("+ СВОЁ",color=accent)}};library.forEach{e->Row(Modifier.fillMaxWidth().clickable{detail(e)}.padding(vertical=11.dp),verticalAlignment=Alignment.CenterVertically){Column(Modifier.weight(1f)){Text(e.name,color=fg,fontWeight=FontWeight.SemiBold);Text(e.type+" · "+e.gear,color=dim,fontSize=11.sp)};Text("›",color=accent,fontSize=22.sp)};HorizontalDivider(color=panel2)}}
   }
  }
 }
@@ -153,7 +162,7 @@ class MainActivity:ComponentActivity(){
   LazyColumn{items(entries){e->CardPanel{Text(e.name,color=fg,fontWeight=FontWeight.Bold);Row(horizontalArrangement=Arrangement.spacedBy(6.dp)){EditField("Подходы",e.sets.toString(),Modifier.weight(1f)){v->entries=entries.map{if(it===e)it.copy(sets=(v.toIntOrNull()?:it.sets).coerceIn(1,20))else it}};EditField("Повторы",e.reps,Modifier.weight(1f)){v->entries=entries.map{if(it===e)it.copy(reps=v)else it}}};Row(horizontalArrangement=Arrangement.spacedBy(6.dp)){EditField("Вес, кг",e.weight,Modifier.weight(1f)){v->entries=entries.map{if(it===e)it.copy(weight=v)else it}};EditField("Отдых, сек",e.rest.toString(),Modifier.weight(1f)){v->entries=entries.map{if(it===e)it.copy(rest=(v.toIntOrNull()?:it.rest).coerceIn(0,3600))else it}}};TextButton({entries=entries.filterNot{it===e}}){Text("УБРАТЬ УПРАЖНЕНИЕ",color=accent)}}}}
   if(initial.name.isNotBlank())TextButton({delete(initial.id)}){Text("УДАЛИТЬ ПЛАН",color=accent)}
  }
- if(choose)AlertDialog(onDismissRequest={choose=false},containerColor=panel,title={Text("Библиотека упражнений",color=fg)},text={Column{OutlinedTextField(query,{query=it},label={Text("Поиск")},singleLine=true,colors=fieldColors());LazyColumn(Modifier.heightIn(max=380.dp)){items(catalog.filter{it.name.contains(query,true)||it.type.contains(query,true)||it.gear.contains(query,true)}){e->Text(e.name+" · "+e.type,color=fg,modifier=Modifier.fillMaxWidth().clickable{entries=entries+PE(e.name);choose=false;query=""}.padding(12.dp))}}}},confirmButton={TextButton({choose=false}){Text("ЗАКРЫТЬ",color=accent)}})
+ if(choose)AlertDialog(onDismissRequest={choose=false},containerColor=panel,title={Text("Библиотека упражнений",color=fg)},text={Column{OutlinedTextField(query,{query=it},label={Text("Поиск")},singleLine=true,colors=fieldColors());LazyColumn(Modifier.heightIn(max=380.dp)){items(library.filter{it.name.contains(query,true)||it.type.contains(query,true)||it.gear.contains(query,true)}){e->Text(e.name+" · "+e.type,color=fg,modifier=Modifier.fillMaxWidth().clickable{entries=entries+PE(e.name);choose=false;query=""}.padding(12.dp))}}}},confirmButton={TextButton({choose=false}){Text("ЗАКРЫТЬ",color=accent)}})
 }
 @Composable private fun EditField(label:String,value:String,modifier:Modifier=Modifier,onValue:(String)->Unit){OutlinedTextField(value,onValue,modifier,label={Text(label,fontSize=10.sp)},singleLine=true,keyboardOptions=KeyboardOptions(keyboardType=KeyboardType.Decimal),colors=fieldColors())}
 
@@ -203,3 +212,6 @@ private fun liveJson(s:Live):String{val o=JSONObject().put("id",s.id).put("name"
 private fun loadLive(p:android.content.SharedPreferences):Live?=try{val raw=p.getString("live","")?:"";if(raw.isBlank())null else{val o=JSONObject(raw);val a=o.getJSONArray("exercises");Live(o.getLong("id"),o.getString("name"),o.getString("date"),(0 until a.length()).map{i->val e=a.getJSONObject(i);val x=e.getJSONArray("sets");LiveEx(e.getString("name"),e.getInt("rest"),(0 until x.length()).map{j->val z=x.getJSONObject(j);SetRow(z.getString("reps"),z.getString("weight"),z.getBoolean("done"))})},o.getString("note"))}}catch(_:Exception){null}
 private fun logsJson(v:List<Log>):String{val a=JSONArray();v.forEach{a.put(JSONObject().put("date",it.date).put("name",it.name).put("volume",it.volume).put("detail",it.detail).put("note",it.note))};return a.toString()}
 private fun loadLogs(p:android.content.SharedPreferences):List<Log> = try{val a=JSONArray(p.getString("logs","[]"));(0 until a.length()).map{i->val o=a.getJSONObject(i);Log(o.getString("date"),o.getString("name"),o.getDouble("volume"),o.getString("detail"),o.getString("note"))}}catch(_:Exception){emptyList()}
+
+private fun customJson(v:List<Ex>):String{val a=JSONArray();v.forEach{a.put(JSONObject().put("name",it.name).put("type",it.type).put("gear",it.gear).put("muscles",it.muscles).put("cue",it.cue))};return a.toString()}
+private fun loadCustom(p:android.content.SharedPreferences):List<Ex> = try{val a=JSONArray(p.getString("custom_exercises","[]"));(0 until a.length()).map{i->val o=a.getJSONObject(i);Ex(o.getString("name"),o.getString("type"),o.getString("gear"),o.getString("muscles"),o.getString("cue"))}}catch(_:Exception){emptyList()}
