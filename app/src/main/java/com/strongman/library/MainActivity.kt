@@ -148,9 +148,10 @@ class MainActivity:ComponentActivity(){
    item{Spacer(Modifier.height(12.dp));Row(Modifier.fillMaxWidth(),verticalAlignment=Alignment.CenterVertically){Text("БИБЛИОТЕКА УПРАЖНЕНИЙ",color=accent,fontSize=11.sp,fontWeight=FontWeight.Bold,letterSpacing=1.5.sp,modifier=Modifier.weight(1f));TextButton({adding=true}){Text("+ СВОЁ",color=accent)}};library.forEach{e->Row(Modifier.fillMaxWidth().clickable{detail(e)}.padding(vertical=11.dp),verticalAlignment=Alignment.CenterVertically){Column(Modifier.weight(1f)){Text(e.name,color=fg,fontWeight=FontWeight.SemiBold);Text(e.type+" · "+e.gear,color=dim,fontSize=11.sp)};Text("›",color=accent,fontSize=22.sp)};HorizontalDivider(color=panel2)}}
   }
  }
+ if(adding)AlertDialog(onDismissRequest={adding=false},containerColor=panel,title={Text("Новое упражнение",color=fg)},text={Column(Modifier.verticalScroll(rememberScrollState())){OutlinedTextField(exName,{exName=it},Modifier.fillMaxWidth(),label={Text("Название *")},singleLine=true,colors=fieldColors());OutlinedTextField(exType,{exType=it},Modifier.fillMaxWidth(),label={Text("Категория")},singleLine=true,colors=fieldColors());OutlinedTextField(exGear,{exGear=it},Modifier.fillMaxWidth(),label={Text("Оборудование")},singleLine=true,colors=fieldColors());OutlinedTextField(exMuscles,{exMuscles=it},Modifier.fillMaxWidth(),label={Text("Работающие мышцы")},singleLine=true,colors=fieldColors());OutlinedTextField(exCue,{exCue=it},Modifier.fillMaxWidth(),label={Text("Техника выполнения")},colors=fieldColors())}},confirmButton={TextButton(enabled=exName.isNotBlank(),onClick={addCustom(Ex(exName.trim(),exType.trim().ifBlank{"СВОЁ"},exGear.trim().ifBlank{"Не указано"},exMuscles.trim().ifBlank{"Не указано"},exCue.trim().ifBlank{"Описание не добавлено"}));exName="";exType="STRONGMAN";exGear="";exMuscles="";exCue="";adding=false}){Text("ДОБАВИТЬ",color=accent)}},dismissButton={TextButton({adding=false}){Text("ОТМЕНА",color=dim)}})
 }
 
-@Composable private fun PlanEdit(initial:Plan,cancel:()->Unit,save:(Plan)->Unit,delete:(Long)->Unit){
+@Composable private fun PlanEdit(initial:Plan,library:List<Ex>,cancel:()->Unit,save:(Plan)->Unit,delete:(Long)->Unit){
  var name by remember(initial.id){mutableStateOf(initial.name)}
  var entries by remember(initial.id){mutableStateOf(initial.exercises)}
  var choose by remember{mutableStateOf(false)}
