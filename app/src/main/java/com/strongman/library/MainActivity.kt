@@ -83,6 +83,7 @@ class MainActivity:ComponentActivity(){
  fun savePlans(v:List<Plan>){plans=v;p.edit().putString("plans",plansJson(v)).apply()}
  fun saveLive(v:Live?){live=v;p.edit().putString("live",if(v==null)"" else liveJson(v)).apply()}
  fun saveLogs(v:List<Log>){logs=v;p.edit().putString("logs",logsJson(v)).apply()}
+ fun start(plan:Plan){saveLive(Live(plan.id,plan.name,SimpleDateFormat("dd.MM.yyyy HH:mm",Locale.getDefault()).format(Date()),plan.exercises.map{e->LiveEx(e.name,e.rest,List(e.sets.coerceIn(1,20)){SetRow(weight=e.weight)})}))}
  if(detail!=null){ExerciseInfo(detail!!){detail=null};return}
  if(editor!=null){PlanEdit(editor!!,{editor=null},{v->savePlans(plans.filterNot{it.id==v.id}+v);editor=null;tab="План"},{id->savePlans(plans.filterNot{it.id==id});editor=null});return}
  if(live!=null){LiveScreen(live!!,{saveLive(it)},{ 
@@ -109,7 +110,6 @@ class MainActivity:ComponentActivity(){
    }
   }
  }
- fun start(plan:Plan){saveLive(Live(plan.id,plan.name,SimpleDateFormat("dd.MM.yyyy HH:mm",Locale.getDefault()).format(Date()),plan.exercises.map{e->LiveEx(e.name,e.rest,List(e.sets.coerceIn(1,20)){SetRow(weight=e.weight)})}))}
 }
 
 @Composable private fun Home(plans:List<Plan>,logs:List<Log>,weight:String,onWeight:(String)->Unit,onCreate:()->Unit,onStart:(Plan)->Unit){
@@ -198,8 +198,8 @@ class MainActivity:ComponentActivity(){
 @Composable private fun Info(title:String,value:String){Column(Modifier.fillMaxWidth().padding(vertical=12.dp)){Text(title,color=accent,fontSize=10.sp,fontWeight=FontWeight.Bold,letterSpacing=1.sp);Text(value,color=fg,fontSize=17.sp);HorizontalDivider(color=panel2,modifier=Modifier.padding(top=10.dp))}}
 
 private fun plansJson(v:List<Plan>):String{val a=JSONArray();v.forEach{p->val o=JSONObject().put("id",p.id).put("name",p.name);val x=JSONArray();p.exercises.forEach{x.put(JSONObject().put("name",it.name).put("sets",it.sets).put("reps",it.reps).put("weight",it.weight).put("rest",it.rest))};o.put("exercises",x);a.put(o)};return a.toString()}
-private fun loadPlans(p:android.content.SharedPreferences):List<Plan>=try{val a=JSONArray(p.getString("plans","[]"));(0 until a.length()).map{i->val o=a.getJSONObject(i);val x=o.getJSONArray("exercises");Plan(o.getLong("id"),o.getString("name"),(0 until x.length()).map{j->val e=x.getJSONObject(j);PE(e.getString("name"),e.getInt("sets"),e.getString("reps"),e.getString("weight"),e.getInt("rest"))})}}catch(_:Exception){emptyList()}
+private fun loadPlans(p:android.content.SharedPreferences):List<Plan> = try{val a=JSONArray(p.getString("plans","[]"));(0 until a.length()).map{i->val o=a.getJSONObject(i);val x=o.getJSONArray("exercises");Plan(o.getLong("id"),o.getString("name"),(0 until x.length()).map{j->val e=x.getJSONObject(j);PE(e.getString("name"),e.getInt("sets"),e.getString("reps"),e.getString("weight"),e.getInt("rest"))})}}catch(_:Exception){emptyList()}
 private fun liveJson(s:Live):String{val o=JSONObject().put("id",s.id).put("name",s.name).put("date",s.date).put("note",s.note);val a=JSONArray();s.exercises.forEach{e->val x=JSONArray();e.sets.forEach{x.put(JSONObject().put("reps",it.reps).put("weight",it.weight).put("done",it.done))};a.put(JSONObject().put("name",e.name).put("rest",e.rest).put("sets",x))};o.put("exercises",a);return o.toString()}
 private fun loadLive(p:android.content.SharedPreferences):Live?=try{val raw=p.getString("live","")?:"";if(raw.isBlank())null else{val o=JSONObject(raw);val a=o.getJSONArray("exercises");Live(o.getLong("id"),o.getString("name"),o.getString("date"),(0 until a.length()).map{i->val e=a.getJSONObject(i);val x=e.getJSONArray("sets");LiveEx(e.getString("name"),e.getInt("rest"),(0 until x.length()).map{j->val z=x.getJSONObject(j);SetRow(z.getString("reps"),z.getString("weight"),z.getBoolean("done"))})},o.getString("note"))}}catch(_:Exception){null}
 private fun logsJson(v:List<Log>):String{val a=JSONArray();v.forEach{a.put(JSONObject().put("date",it.date).put("name",it.name).put("volume",it.volume).put("detail",it.detail).put("note",it.note))};return a.toString()}
-private fun loadLogs(p:android.content.SharedPreferences):List<Log>=try{val a=JSONArray(p.getString("logs","[]"));(0 until a.length()).map{i->val o=a.getJSONObject(i);Log(o.getString("date"),o.getString("name"),o.getDouble("volume"),o.getString("detail"),o.getString("note"))}}catch(_:Exception){emptyList()}
+private fun loadLogs(p:android.content.SharedPreferences):List<Log> = try{val a=JSONArray(p.getString("logs","[]"));(0 until a.length()).map{i->val o=a.getJSONObject(i);Log(o.getString("date"),o.getString("name"),o.getDouble("volume"),o.getString("detail"),o.getString("note"))}}catch(_:Exception){emptyList()}
