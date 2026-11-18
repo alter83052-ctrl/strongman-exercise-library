@@ -3,6 +3,7 @@ package com.strongman.library
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
@@ -17,6 +18,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -55,16 +58,18 @@ Exercise("Прогулка с ярмом","Joch tragen","Yoke Walk","Strongman",
 Exercise("Переноска на плече","Schultertragen","Shoulder Carry","Strongman","Мешок, бревно","Корпус, трапеции, ноги","Подними снаряд на плечо, зафиксируй и пройди дистанцию.")
 )
 
-val bg = Color(0xFF101311)
-val lime = Color(0xFFC4F05A)
-val panel = Color(0xFF1C241F)
+val bg = Color(0xFFF3F5F2)
+val lime = Color(0xFF356B24)
+val panel = Color(0xFFFFFFFF)
+val ink = Color(0xFF172019)
+val secondaryInk = Color(0xFF46534A)
 
 class MainActivity : ComponentActivity() {
  override fun onCreate(savedInstanceState: Bundle?) {
   super.onCreate(savedInstanceState)
   val prefs = getSharedPreferences("strongman", MODE_PRIVATE)
   setContent {
-   MaterialTheme(colorScheme = darkColorScheme(primary=lime, background=bg, surface=panel, onBackground=Color.White, onSurface=Color.White)) {
+   MaterialTheme(colorScheme = lightColorScheme(primary=lime, background=bg, surface=panel, onBackground=ink, onSurface=ink)) {
     var query by remember { mutableStateOf("") }
     var category by remember { mutableStateOf("Все") }
     var favoritesOnly by remember { mutableStateOf(false) }
@@ -81,8 +86,10 @@ class MainActivity : ComponentActivity() {
      Column(Modifier.fillMaxSize().background(bg).statusBarsPadding().verticalScroll(rememberScrollState()).padding(20.dp)) {
       TextButton(onClick={selected=null}) { Text("← Назад",color=lime) }
       Text(e.type.uppercase(),color=lime,fontSize=12.sp,fontWeight=FontWeight.Bold)
-      Text(e.ru,fontSize=28.sp,fontWeight=FontWeight.Black)
-      Text(e.de + " · " + e.en,color=Color.LightGray)
+      Text(e.ru,fontSize=28.sp,fontWeight=FontWeight.Black,color=ink)
+      Text(e.de + " · " + e.en,color=secondaryInk)
+      Spacer(Modifier.height(14.dp))
+      ExerciseDiagram(e)
       Spacer(Modifier.height(18.dp))
       Detail("ОБОРУДОВАНИЕ",e.gear)
       Detail("РАБОТАЮЩИЕ МЫШЦЫ",e.muscles)
@@ -96,15 +103,15 @@ class MainActivity : ComponentActivity() {
      Column(Modifier.fillMaxSize().background(bg).statusBarsPadding()) {
       Column(Modifier.padding(18.dp)) {
        Text("STRONGMAN",color=lime,fontSize=12.sp,fontWeight=FontWeight.Bold,letterSpacing=3.sp)
-       Text("EXERCISE LIBRARY",fontSize=25.sp,fontWeight=FontWeight.Black)
+       Text("EXERCISE LIBRARY",fontSize=25.sp,fontWeight=FontWeight.Black,color=ink)
        Spacer(Modifier.height(14.dp))
-       OutlinedTextField(value=query,onValueChange={query=it},modifier=Modifier.fillMaxWidth(),placeholder={Text("Поиск RU · DE · EN")},singleLine=true)
+       OutlinedTextField(value=query,onValueChange={query=it},modifier=Modifier.fillMaxWidth(),placeholder={Text("Поиск RU · DE · EN",color=secondaryInk)},singleLine=true)
        Spacer(Modifier.height(8.dp))
        Row(Modifier.horizontalScroll(rememberScrollState()),horizontalArrangement=Arrangement.spacedBy(6.dp)) {
         categories.forEach { c -> FilterChip(selected=category==c,onClick={category=c},label={Text(c)}) }
        }
        Row(verticalAlignment=Alignment.CenterVertically) {
-        Text(filtered.size.toString()+" УПРАЖНЕНИЙ",modifier=Modifier.weight(1f),color=Color.LightGray,fontSize=11.sp)
+        Text(filtered.size.toString()+" УПРАЖНЕНИЙ",modifier=Modifier.weight(1f),color=secondaryInk,fontSize=11.sp)
         FilterChip(selected=favoritesOnly,onClick={favoritesOnly=!favoritesOnly},label={Text("Избранное")})
        }
       }
@@ -112,10 +119,10 @@ class MainActivity : ComponentActivity() {
        items(filtered) { e ->
         Row(Modifier.fillMaxWidth().background(panel,RoundedCornerShape(14.dp)).clickable { selected=e }.padding(14.dp),verticalAlignment=Alignment.CenterVertically) {
          Column(Modifier.weight(1f)) {
-          Text(e.ru,fontWeight=FontWeight.Bold,fontSize=16.sp)
+          Text(e.ru,fontWeight=FontWeight.Bold,fontSize=16.sp,color=ink)
           Text(e.de,color=lime,fontSize=13.sp)
-          Text(e.en,color=Color.LightGray,fontSize=11.sp)
-          Text(e.type+" · "+e.gear,color=Color.LightGray,fontSize=10.sp)
+          Text(e.en,color=secondaryInk,fontSize=11.sp)
+          Text(e.type+" · "+e.gear,color=secondaryInk,fontSize=10.sp)
          }
          Text(if(favorites.contains(e.ru)) "★" else "›",color=lime,fontSize=22.sp)
         }
@@ -132,8 +139,62 @@ class MainActivity : ComponentActivity() {
  Column(Modifier.fillMaxWidth().padding(vertical=10.dp)) {
   Text(title,color=lime,fontSize=11.sp,fontWeight=FontWeight.Bold)
   Spacer(Modifier.height(5.dp))
-  Text(body,fontSize=15.sp,lineHeight=22.sp)
+  Text(body,fontSize=15.sp,lineHeight=22.sp,color=ink)
   Spacer(Modifier.height(8.dp))
   HorizontalDivider(color=Color.DarkGray)
+ }
+}
+
+
+@Composable
+fun ExerciseDiagram(exercise: Exercise) {
+ Column(
+  Modifier.fillMaxWidth()
+   .background(Color.White, RoundedCornerShape(18.dp))
+   .padding(14.dp)
+ ) {
+  Text("СХЕМА ДВИЖЕНИЯ", color=lime, fontSize=12.sp, fontWeight=FontWeight.Bold, letterSpacing=1.sp)
+  Spacer(Modifier.height(8.dp))
+  Canvas(Modifier.fillMaxWidth().height(176.dp)) {
+   val w=size.width
+   val h=size.height
+   val athlete=Color(0xFF26352B)
+   val equipment=Color(0xFF6C7A70)
+   val accent=Color(0xFF4D8B35)
+   val floor=Color(0xFFD9E2D8)
+   drawLine(floor, Offset(w*.06f,h*.84f), Offset(w*.94f,h*.84f), 3f)
+   fun person(cx:Float, bent:Boolean) {
+    val headY=if(bent) h*.25f else h*.19f
+    val shoulder=Offset(cx, if(bent) h*.39f else h*.34f)
+    val hip=Offset(cx+if(bent) w*.035f else 0f, if(bent) h*.58f else h*.56f)
+    val kneeL=Offset(cx-w*.055f, if(bent) h*.70f else h*.69f)
+    val kneeR=Offset(cx+w*.055f, if(bent) h*.69f else h*.69f)
+    val footL=Offset(cx-w*.09f,h*.83f)
+    val footR=Offset(cx+w*.09f,h*.83f)
+    drawCircle(athlete, size.minDimension*.055f, Offset(cx,headY))
+    drawLine(athlete,shoulder,hip,7f)
+    drawLine(athlete,Offset(cx,shoulder.y+5),Offset(cx-w*.075f,if(bent) h*.54f else h*.57f),6f)
+    drawLine(athlete,Offset(cx,shoulder.y+5),Offset(cx+w*.075f,if(bent) h*.53f else h*.56f),6f)
+    drawLine(athlete,hip,kneeL,7f)
+    drawLine(athlete,hip,kneeR,7f)
+    drawLine(athlete,kneeL,footL,7f)
+    drawLine(athlete,kneeR,footR,7f)
+    val barY=if(bent) h*.55f else h*.46f
+    drawLine(equipment,Offset(cx-w*.17f,barY),Offset(cx+w*.17f,barY),5f)
+    drawCircle(accent,7f,Offset(cx-w*.17f,barY))
+    drawCircle(accent,7f,Offset(cx+w*.17f,barY))
+   }
+   person(w*.27f,true)
+   person(w*.72f,false)
+   drawLine(accent,Offset(w*.43f,h*.43f),Offset(w*.57f,h*.43f),5f)
+   drawLine(accent,Offset(w*.53f,h*.37f),Offset(w*.57f,h*.43f),5f)
+   drawLine(accent,Offset(w*.53f,h*.49f),Offset(w*.57f,h*.43f),5f)
+  }
+  Row(Modifier.fillMaxWidth(), horizontalArrangement=Arrangement.SpaceBetween) {
+   Text("1. Исходное положение",color=secondaryInk,fontSize=11.sp,fontWeight=FontWeight.Medium)
+   Text("2. Завершение",color=secondaryInk,fontSize=11.sp,fontWeight=FontWeight.Medium)
+  }
+  Spacer(Modifier.height(5.dp))
+  Text("Условная схема: ориентируйся на описание техники ниже.",color=secondaryInk,fontSize=11.sp)
  }
 }
