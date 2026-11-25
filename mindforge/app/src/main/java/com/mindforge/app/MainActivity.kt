@@ -279,7 +279,7 @@ private fun saveNotes(c: Context, notes: List<UserNote>) {
                         Text("ДОБАВИТЬ СВОЮ КАРТОЧКУ / EIGENE KARTE", color = Gold, fontWeight = FontWeight.Bold, fontSize = 11.sp)
                         OutlinedTextField(newFront, { newFront = it }, Modifier.fillMaxWidth(), label = { Text("Вопрос / Vorderseite") })
                         OutlinedTextField(newBack, { newBack = it }, Modifier.fillMaxWidth(), label = { Text("Ответ / Rückseite") })
-                        Button(onClick = { if (newFront.isNotBlank() && newBack.isNotBlank()) { cards = cards + Flash(newFront.trim(), newBack.trim()); saveCards(context, cards); newFront = ""; newBack = "" } }, colors = ButtonDefaults.buttonColors(containerColor = Red)) { Text("ДОБАВИТЬ / HINZUFÜGEN") }
+                        Button(onClick = { if (newFront.isNotBlank() && newBack.isNotBlank()) { cards = (cards + Flash(newFront.trim(), newBack.trim())).toMutableList(); saveCards(context, cards); newFront = ""; newBack = "" } }, colors = ButtonDefaults.buttonColors(containerColor = Red)) { Text("ДОБАВИТЬ / HINZUFÜGEN") }
                     }
                 }
                 page == "progress" -> {
