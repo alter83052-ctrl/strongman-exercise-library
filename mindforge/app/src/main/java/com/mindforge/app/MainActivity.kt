@@ -119,7 +119,7 @@ private fun writeCards(c: Context, v: List<CardData>) {
                             Text("Куй знания. Тренируй память. Развивай мышление.", color = White, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                             Text("Wissen schmieden. Gedächtnis trainieren. Denken entwickeln.", color = Muted, fontSize = 13.sp)
                             Spacer(Modifier.height(10.dp))
-                            Text("Карточки к повторению: \${due.size}  •  Записи: \${notes.size}", color = White, fontSize = 12.sp)
+                            Text("Карточки к повторению: ${due.size}  •  Записи: ${notes.size}", color = White, fontSize = 12.sp)
                         }
                         Text("МОДУЛИ / MODULE", color = White, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 13.dp))
                     }
@@ -142,7 +142,7 @@ private fun writeCards(c: Context, v: List<CardData>) {
                     }
                     when (module) {
                         "Memory Engine", "Language Core" -> {
-                            Text(if (module == "Memory Engine") "КАРТОЧКИ / LERNKARTEN • \${due.size} К ПОВТОРЕНИЮ" else "DEUTSCH A2–B2 • PFLEGE & FACHBEGRIFFE", color = Red, fontSize = 11.sp)
+                            Text(if (module == "Memory Engine") "КАРТОЧКИ / LERNKARTEN • ${due.size} К ПОВТОРЕНИЮ" else "DEUTSCH A2–B2 • PFLEGE & FACHBEGRIFFE", color = Red, fontSize = 11.sp)
                             OutlinedTextField(front, { front = it }, Modifier.fillMaxWidth(), label = { Text(if (module == "Language Core") "Слово с артиклем / Wort mit Artikel" else "Вопрос / Vorderseite") })
                             OutlinedTextField(back, { back = it }, Modifier.fillMaxWidth(), label = { Text("Перевод и пример / Antwort & Beispiel") })
                             Button(onClick = { if (front.isNotBlank() && back.isNotBlank()) { cards = cards + CardData(front.trim(), back.trim()); writeCards(context, cards); front = ""; back = "" } }, colors = ButtonDefaults.buttonColors(containerColor = Red)) { Text("ДОБАВИТЬ / HINZUFÜGEN") }
@@ -217,7 +217,7 @@ private fun writeCards(c: Context, v: List<CardData>) {
                     }
                     Button(onClick = {
                         prefs.edit().putInt("hour", hour).putInt("minute", minute).putBoolean("enabled", enabled).apply()
-                        days.forEachIndexed { i, v -> prefs.edit().putBoolean("day\${i + 1}", v).apply() }
+                        days.forEachIndexed { i, v -> prefs.edit().putBoolean("day${i + 1}", v).apply() }
                         if (Build.VERSION.SDK_INT >= 33) permission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
                         val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
                         for (d in 1..7) {
