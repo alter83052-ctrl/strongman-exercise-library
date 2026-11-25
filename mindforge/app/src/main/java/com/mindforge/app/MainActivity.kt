@@ -269,8 +269,8 @@ private fun saveNotes(c: Context, notes: List<UserNote>) {
                                 Button(onClick = { reveal = !reveal }, colors = ButtonDefaults.buttonColors(containerColor = Red), modifier = Modifier.fillMaxWidth()) { Text(if (reveal) "СКРЫТЬ ОТВЕТ / ANTWORT VERBERGEN" else "ПОКАЗАТЬ ОТВЕТ / ANTWORT ZEIGEN") }
                                 if (reveal) {
                                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-                                        OutlinedButton(Modifier.weight(1f), onClick = { updateCard(context, cards, current, 0); cards = loadCards(context); reveal = false; cardIndex = 0 }) { Text("ЕЩЁ РАЗ") }
-                                        Button(Modifier.weight(1f), onClick = { updateCard(context, cards, current, 1); cards = loadCards(context); reveal = false; cardIndex = 0 }, colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF315B46))) { Text("ЗНАЮ / WEISS") }
+                                        OutlinedButton(onClick = { updateCard(context, cards, current, 0); cards = loadCards(context); reveal = false; cardIndex = 0 }, modifier = Modifier.weight(1f)) { Text("ЕЩЁ РАЗ") }
+                                        Button(onClick = { updateCard(context, cards, current, 1); cards = loadCards(context); reveal = false; cardIndex = 0 }, modifier = Modifier.weight(1f), colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF315B46))) { Text("ЗНАЮ / WEISS") }
                                     }
                                 }
                             }
