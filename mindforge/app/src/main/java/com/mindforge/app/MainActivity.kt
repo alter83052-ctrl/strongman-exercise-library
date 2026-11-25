@@ -179,36 +179,110 @@ private fun saveNotes(c: Context, notes: List<UserNote>) {
         Column(Modifier.fillMaxSize().background(Bg)) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically) {
                 Column(Modifier.weight(1f)) {
-                    Text("ᚠ  MIND FORGE  ᚱ", color = TextMain, fontSize = 23.sp, fontWeight = FontWeight.Black, letterSpacing = 1.7.sp)
-                    Text("ЗНАНИЯ • СИЛА • ДИСЦИПЛИНА  /  WISSEN • KRAFT • DISZIPLIN", color = Red, fontSize = 9.sp, letterSpacing = 0.7.sp)
+                    Text("MIND FORGE", color = TextMain, fontSize = 23.sp, fontWeight = FontWeight.Black, letterSpacing = 2.2.sp)
+                    Text("ЗНАНИЯ  •  СИЛА  •  ДИСЦИПЛИНА", color = Red, fontSize = 9.sp, letterSpacing = 1.0.sp)
                 }
                 IconButton(onClick = { page = "reminders" }) { Icon(Icons.Default.Notifications, null, tint = Gold) }
             }
             when {
                 page == "home" -> {
-                    LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(start = 15.dp, end = 15.dp, bottom = 12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    LazyColumn(
+                        Modifier.weight(1f),
+                        contentPadding = PaddingValues(start = 18.dp, end = 18.dp, top = 8.dp, bottom = 20.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
                         item {
-                            Column(Modifier.fillMaxWidth().background(Surface2, RoundedCornerShape(18.dp)).border(1.dp, Red.copy(alpha=.55f), RoundedCornerShape(18.dp)).padding(18.dp)) {
-                                Text("ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ ᚹ", color = Red, fontSize = 17.sp, letterSpacing = 4.sp)
-                                Spacer(Modifier.height(7.dp))
-                                Text("КУЙ СВОЙ РАЗУМ", color = TextMain, fontSize = 23.sp, fontWeight = FontWeight.Black)
-                                Text("SCHMIEDE DEINEN GEIST", color = Gold, fontSize = 12.sp, letterSpacing = 1.4.sp)
-                                Spacer(Modifier.height(13.dp))
-                                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                                    Metric("К повторению", due.size.toString()); Metric("Карточек", cards.size.toString()); Metric("Заметок", notes.size.toString())
+                            Column(
+                                Modifier.fillMaxWidth()
+                                    .background(Surface2, RoundedCornerShape(24.dp))
+                                    .border(1.dp, Gold.copy(alpha = .38f), RoundedCornerShape(24.dp))
+                                    .padding(20.dp)
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Column(Modifier.weight(1f)) {
+                                        Text("MIND FORGE  /  PERSONAL INTELLIGENCE SYSTEM", color = Gold, fontSize = 9.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.1.sp)
+                                        Spacer(Modifier.height(12.dp))
+                                        Text("КУЙ СВОЙ РАЗУМ", color = TextMain, fontSize = 27.sp, fontWeight = FontWeight.Black, letterSpacing = .3.sp)
+                                        Text("SCHMIEDE DEINEN GEIST", color = Gold, fontSize = 12.sp, letterSpacing = 1.8.sp)
+                                    }
+                                    Box(
+                                        Modifier.size(66.dp).background(Bg, RoundedCornerShape(19.dp)).border(1.dp, Red.copy(alpha=.8f), RoundedCornerShape(19.dp)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text("MF", color = TextMain, fontSize = 25.sp, fontWeight = FontWeight.Black, letterSpacing = (-1).sp)
+                                    }
+                                }
+                                Spacer(Modifier.height(20.dp))
+                                Text("ТВОЯ СИСТЕМА РАЗВИТИЯ  /  DEIN ENTWICKLUNGSSYSTEM", color = TextMuted, fontSize = 9.sp, letterSpacing = .8.sp)
+                                Spacer(Modifier.height(12.dp))
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    Metric("К повторению / FÄLLIG", due.size.toString())
+                                    Metric("Карточки / KARTEN", cards.size.toString())
+                                    Metric("Заметки / NOTIZEN", notes.size.toString())
                                 }
                             }
-                            Text("АРСЕНАЛ ЗНАНИЙ / WISSENSARSENAL", color = Gold, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(top = 10.dp))
                         }
-                        items(modules) { m ->
-                            Row(Modifier.fillMaxWidth().background(Surface, RoundedCornerShape(13.dp)).border(1.dp, Color(0xFF393238), RoundedCornerShape(13.dp)).clickable { section = m.first; page = if (m.first == "Memory Engine") "memory" else if (m.first == "Progress") "progress" else "library" }.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                                Text(moduleGlyph(m.first), color = Ember, fontSize = 25.sp, modifier = Modifier.width(42.dp))
-                                Column(Modifier.weight(1f)) {
-                                    Text(m.first, color = TextMain, fontSize = 15.sp, fontWeight = FontWeight.Bold)
-                                    Text(m.second, color = Gold, fontSize = 12.sp)
-                                    Text(m.third, color = TextMuted, fontSize = 11.sp)
+                        item {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Text("АРХИТЕКТУРА MIND FORGE", color = Gold, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.1.sp)
+                                Spacer(Modifier.weight(1f))
+                                Text("07 MODULE", color = Red, fontSize = 9.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+                        items(modules.filter { it.first != "Progress" }.chunked(2)) { pair ->
+                            Row(horizontalArrangement = Arrangement.spacedBy(11.dp)) {
+                                pair.forEach { m ->
+                                    val target = when(m.first) {
+                                        "Memory Engine" -> "memory"
+                                        else -> "library"
+                                    }
+                                    Column(
+                                        Modifier.weight(1f).heightIn(min = 154.dp)
+                                            .background(Surface, RoundedCornerShape(18.dp))
+                                            .border(1.dp, Color(0xFF343139), RoundedCornerShape(18.dp))
+                                            .clickable { section = m.first; page = target; query = ""; filter = "Все / Alle" }
+                                            .padding(14.dp)
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Box(Modifier.size(34.dp).background(Red.copy(alpha=.13f), RoundedCornerShape(11.dp)), contentAlignment = Alignment.Center) {
+                                                Text(moduleGlyph(m.first), color = Ember, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                                            }
+                                            Spacer(Modifier.weight(1f))
+                                            Text("%02d".format(modules.indexOf(m) + 1), color = TextMuted, fontSize = 9.sp)
+                                        }
+                                        Spacer(Modifier.height(15.dp))
+                                        Text(m.first.uppercase(), color = TextMain, fontSize = 12.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = .25.sp, maxLines = 2)
+                                        Spacer(Modifier.height(5.dp))
+                                        Text(m.second, color = Gold, fontSize = 10.sp, lineHeight = 14.sp, maxLines = 2)
+                                        Spacer(Modifier.weight(1f))
+                                        Text(m.third, color = TextMuted, fontSize = 9.sp, lineHeight = 13.sp, maxLines = 2)
+                                        Spacer(Modifier.height(8.dp))
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Text("ОТКРЫТЬ / ÖFFNEN", color = Red, fontSize = 8.sp, fontWeight = FontWeight.Bold, letterSpacing = .6.sp)
+                                            Spacer(Modifier.weight(1f))
+                                            Icon(Icons.Default.ArrowForward, null, tint = Red, modifier = Modifier.size(15.dp))
+                                        }
+                                    }
                                 }
-                                Icon(Icons.Default.ChevronRight, null, tint = Red)
+                                if (pair.size == 1) Spacer(Modifier.weight(1f))
+                            }
+                        }
+                        item {
+                            Column(Modifier.fillMaxWidth().background(Surface, RoundedCornerShape(18.dp)).border(1.dp, Color(0xFF343139), RoundedCornerShape(18.dp)).padding(16.dp)) {
+                                Text("ПРОГРЕСС / FORTSCHRITT", color = Gold, fontSize = 11.sp, fontWeight = FontWeight.Bold, letterSpacing = .8.sp)
+                                Spacer(Modifier.height(8.dp))
+                                Text("Твой интеллектуальный арсенал", color = TextMain, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                                Text("Dein persönliches Wissensarchiv", color = TextMuted, fontSize = 11.sp)
+                                Spacer(Modifier.height(12.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text("${lessons.size} Lerninhalte", color = TextMuted, fontSize = 10.sp)
+                                    Spacer(Modifier.weight(1f))
+                                    Text("${favorites.size} Favoriten", color = Gold, fontSize = 10.sp)
+                                }
+                                Spacer(Modifier.height(10.dp))
+                                Button(onClick = { page = "progress" }, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = Red), shape = RoundedCornerShape(12.dp)) {
+                                    Text("ОТКРЫТЬ СТАТИСТИКУ / STATISTIK")
+                                }
                             }
                         }
                     }
@@ -352,8 +426,8 @@ private fun updateCard(context: Context, all: List<Flash>, current: Flash, known
     saveCards(context, all.map { if (it == current) it.copy(due = due, interval = nextInterval, reps = it.reps + 1) else it })
 }
 private fun moduleGlyph(s: String) = when(s) {
-    "Knowledge Base" -> "ᚠ"; "Memory Engine" -> "ᚢ"; "Language Core" -> "ᚦ"; "Medical Mind" -> "ᛉ"
-    "Stoic Mind" -> "ᛟ"; "Tactical Mind" -> "ᚱ"; "Training Forge" -> "ᚷ"; else -> "ᛏ"
+    "Knowledge Base" -> "K"; "Memory Engine" -> "M"; "Language Core" -> "L"; "Medical Mind" -> "+" 
+    "Stoic Mind" -> "S"; "Tactical Mind" -> "T"; "Training Forge" -> "F"; else -> "P"
 }
 @Composable private fun Metric(label: String, value: String) {
     Column { Text(value, color = TextMain, fontSize = 20.sp, fontWeight = FontWeight.Bold); Text(label, color = TextMuted, fontSize = 9.sp) }
