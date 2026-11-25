@@ -257,7 +257,7 @@ private fun saveNotes(c: Context, notes: List<UserNote>) {
                     Header("Memory Engine / Gedächtnis") { page = "home" }
                     Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp)) {
                         Text("ГОТОВАЯ КОЛОДА PFLEGE + DEUTSCH", color = Gold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
-                        Text("К повторению: \${due.size} из \${cards.size}", color = TextMuted)
+                        Text("К повторению: ${due.size} из ${cards.size}", color = TextMuted)
                         Spacer(Modifier.height(12.dp))
                         if (due.isNotEmpty()) {
                             val current = due[cardIndex.coerceIn(0, due.lastIndex)]
@@ -328,7 +328,7 @@ private fun saveNotes(c: Context, notes: List<UserNote>) {
                         }
                         Button(onClick = {
                             prefs.edit().putInt("hour", hour).putInt("minute", minute).putBoolean("reminder", reminderOn).apply()
-                            days.forEachIndexed { i, v -> prefs.edit().putBoolean("day\${i + 1}", v).apply() }
+                            days.forEachIndexed { i, v -> prefs.edit().putBoolean("day${i + 1}", v).apply() }
                             if (Build.VERSION.SDK_INT >= 33) permission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
                             val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
                             for (d in 1..7) {
