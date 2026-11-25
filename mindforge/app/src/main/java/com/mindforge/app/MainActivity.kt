@@ -334,7 +334,7 @@ private fun saveNotes(c: Context, notes: List<UserNote>) {
                             for (d in 1..7) {
                                 val pi = PendingIntent.getBroadcast(context, 700 + d, Intent(context, ReminderReceiver::class.java), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
                                 if (reminderOn && days[d - 1]) {
-                                    val cal = Calendar.getInstance().apply { set(Calendar.DAY_OF_WEEK, d); set(Calendar.HOUR_OF_DAY, hour); set(Calendar.MINUTE, minute); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0); if (timeInMillis <= System.currentTimeMillis()) add(Calendar.WEEK_OF_YEAR, 1) }
+                                    val cal = Calendar.getInstance().apply { set(Calendar.DAY_OF_WEEK, if (d == 7) Calendar.SUNDAY else d + 1); set(Calendar.HOUR_OF_DAY, hour); set(Calendar.MINUTE, minute); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0); if (timeInMillis <= System.currentTimeMillis()) add(Calendar.WEEK_OF_YEAR, 1) }
                                     am.setInexactRepeating(AlarmManager.RTC_WAKEUP, cal.timeInMillis, AlarmManager.INTERVAL_DAY * 7, pi)
                                 } else am.cancel(pi)
                             }
