@@ -50,7 +50,7 @@ class ReminderReceiver : BroadcastReceiver() {
         val channel = "mind_forge"
         if (Build.VERSION.SDK_INT >= 26) manager.createNotificationChannel(NotificationChannel(channel, "MIND FORGE", NotificationManager.IMPORTANCE_DEFAULT))
         val n = androidx.core.app.NotificationCompat.Builder(context, channel)
-            .setSmallIcon(R.drawable.ic_mind_forge)
+            .setSmallIcon(R.drawable.ic_stat_mind_forge)
             .setContentTitle("MIND FORGE")
             .setContentText("Время тренировать разум / Zeit, deinen Geist zu trainieren")
             .setAutoCancel(true).build()
