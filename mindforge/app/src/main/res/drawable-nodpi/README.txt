@@ -1,0 +1,1 @@
+MIND FORGE icon resources are vector-based for crisp scaling.
