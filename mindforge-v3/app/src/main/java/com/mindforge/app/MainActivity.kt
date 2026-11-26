@@ -16,6 +16,7 @@ import androidx.compose.ui.*
 import androidx.compose.ui.draw.*
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
@@ -80,8 +81,8 @@ class MainActivity:ComponentActivity(){override fun onCreate(savedInstanceState:
    AnimatedContent(page,label="page",modifier=Modifier.weight(1f)){p->when(p){
     "home"->HomeForge(cards.count{it.days==0},cards.count{it.days>0},cards.size,{m->module=m;category="";page=if(m.id=="memory")"memory" else if(m.id=="progress")"progress" else "module"},{page="search"})
     "module"->ModuleForge(module,category,{category=it},{t->topic=t;page="topic"},done)
-    "topic"->TopicForge(topic,done.contains(topic?.id),{id->done=done+id;ctx.getSharedPreferences("forge3",0).edit().putStringSet("done",done).apply()})
-    "memory"->MemoryForge(cards,cardPos,flipped,{flipped=it},{rate->if(cards.isNotEmpty()){val old=cards[cardPos.coerceIn(cards.indices)];val days=when(rate){0->0;1->1;else->if(old.days==0)2 else (old.days*2).coerceAtMost(60)};cards=cards.toMutableList().also{it[cardPos]=old.copy(days=days,reps=old.reps+1)};saveCards(ctx,cards);cardPos=(cardPos+1)%cards.size;flipped=false}},{q,a->cards=cards+CardData(q,a);saveCards(ctx,cards)})
+    "topic"->TopicForge(topic,done.contains(topic?.id),{topic?.id?.let { id -> done=done+id;ctx.getSharedPreferences("forge3",0).edit().putStringSet("done",done).apply() }})
+    "memory"->MemoryForge(cards,cardPos,flipped,{flipped=it},{rate->if(cards.isNotEmpty()){val old=cards[cardPos.coerceIn(cards.indices)];val days=when(rate){0->0;1->1;else->if(old.days==0)2 else (old.days*2).coerceAtMost(60)};cards=cards.toMutableList().also{it[cardPos]=old.copy(days=days,reps=old.reps+1)};saveCards(ctx,cards);cardPos=(cardPos+1)%cards.size;flipped=false}},{q,a->cards=(cards+CardData(q,a)).toMutableList();saveCards(ctx,cards)})
     "search"->SearchForge(search,{search=it},{t->topic=t;page="topic"})
     "notes"->NotesForge(notes,{notes=it;ctx.getSharedPreferences("forge3",0).edit().putString("notes",notes).apply()})
     "profile"->ProfileForge(lang,{lang=it},cards.size,done.size)
