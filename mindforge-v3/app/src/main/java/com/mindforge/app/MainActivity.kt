@@ -217,7 +217,7 @@ class MainActivity:ComponentActivity(){override fun onCreate(savedInstanceState:
   Row(Modifier.fillMaxWidth().background(Color(0xFF101114)).padding(horizontal=8.dp,vertical=6.dp),verticalAlignment=Alignment.CenterVertically){Text(m.desc,color=Ash,fontSize=8.sp,maxLines=1,modifier=Modifier.weight(1f));Icon(Icons.Default.ChevronRight,null,tint=Ember)}
  }
 }
-@Composable fun AtlasArt(index:Int,modifier:Modifier=Modifier){val atlas=androidx.compose.ui.graphics.ImageBitmap.imageResource(R.drawable.module_atlas);Canvas(modifier){drawImage(atlas,srcOffset=IntOffset((index%4)*80,(index/4)*60),srcSize=IntSize(80,60),dstSize=IntSize(size.width.toInt(),size.height.toInt()))}}
+@Composable fun AtlasArt(index:Int,modifier:Modifier=Modifier){val art=when(index){0->R.drawable.module_knowledge;1->R.drawable.module_memory;2->R.drawable.module_language;3->R.drawable.module_medical;4->R.drawable.module_stoic;5->R.drawable.module_tactical;6->R.drawable.module_progress;else->R.drawable.module_training};Image(painterResource(art),contentDescription=null,modifier=modifier,contentScale=androidx.compose.ui.layout.ContentScale.Crop)}
 
 @Composable fun ModuleForge(m:ForgeModule,selected:String,onCategory:(String)->Unit,onTopic:(Lesson)->Unit,done:Set<String>){
  var cat by remember(m.id){mutableStateOf(selected)}
