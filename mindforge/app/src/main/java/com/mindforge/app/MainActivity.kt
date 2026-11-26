@@ -27,6 +27,10 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -193,51 +197,73 @@ private fun saveNotes(c: Context, notes: List<UserNote>) {
             }
             when {
                 page == "home" -> {
-                    LazyColumn(
-                        Modifier.weight(1f),
-                        contentPadding = PaddingValues(start = 18.dp, end = 18.dp, top = 10.dp, bottom = 22.dp),
-                        verticalArrangement = Arrangement.spacedBy(17.dp)
-                    ) {
+                    LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 6.dp, bottom = 24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         item {
-                            ForgeHero(
-                                due = due.size,
-                                cards = cards.size,
-                                notes = notes.size,
-                                onStudy = { section = "Memory Engine"; page = "memory" }
-                            )
+                            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                Text("ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ ᚷ", color = Gold.copy(alpha=.82f), fontSize = 11.sp, letterSpacing = 3.sp)
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Column(Modifier.weight(1f)) {
+                                        Text("MIND FORGE", color = TextMain, fontSize = 25.sp, fontWeight = FontWeight.Black, letterSpacing = 2.6.sp)
+                                        Text("ЗНАНИЯ  •  СИЛА  •  ДИСЦИПЛИНА", color = Red, fontSize = 9.sp, letterSpacing = 1.3.sp)
+                                    }
+                                    IconButton(onClick = { page = "reminders" }) { Icon(Icons.Default.Notifications, null, tint = Gold) }
+                                }
+                            }
+                        }
+                        item {
+                            Box(Modifier.fillMaxWidth().height(258.dp).clip(RoundedCornerShape(22.dp)).border(1.dp, Gold.copy(alpha=.55f), RoundedCornerShape(22.dp))) {
+                                ModuleArtwork(7, Modifier.fillMaxSize())
+                                Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color(0x22000000), Color(0xCC08090C), Bg))))
+                                Column(Modifier.align(Alignment.BottomStart).padding(19.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    Text("ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ", color = Gold, fontSize = 10.sp, letterSpacing = 2.sp)
+                                    Text("КУЙ СВОЙ РАЗУМ", color = TextMain, fontSize = 25.sp, fontWeight = FontWeight.Black, letterSpacing = 1.1.sp)
+                                    Text("Schmiede deinen Geist", color = Gold, fontSize = 13.sp)
+                                    Text("Личная система знаний, памяти, языка и силы", color = TextMuted, fontSize = 11.sp)
+                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                                        ForgePill("К ПОВТОРЕНИЮ  ${due.size}")
+                                        ForgePill("КАРТОЧЕК  ${cards.size}")
+                                        ForgePill("ЗАМЕТОК  ${notes.size}")
+                                    }
+                                    Button(onClick = { page = "memory" }, modifier = Modifier.fillMaxWidth().height(46.dp), shape = RoundedCornerShape(10.dp), colors = ButtonDefaults.buttonColors(containerColor = Red)) {
+                                        Text("НАЧАТЬ ТРЕНИРОВКУ ПАМЯТИ  /  TRAINIEREN", fontSize = 10.sp, fontWeight = FontWeight.Black, letterSpacing = .5.sp)
+                                    }
+                                }
+                            }
                         }
                         item {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Column(Modifier.weight(1f)) {
-                                    Text("ТВОЯ АРХИТЕКТУРА", color = Gold, fontSize = 10.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = 1.8.sp)
-                                    Text("Семь направлений развития", color = TextMain, fontSize = 19.sp, fontWeight = FontWeight.Bold)
+                                    Text("ВОСЕМЬ ПУТЕЙ / ACHT WEGE", color = Gold, fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.8.sp)
+                                    Text("Арсенал развития", color = TextMain, fontSize = 20.sp, fontWeight = FontWeight.Bold)
                                 }
-                                Text("01 — 07", color = Red, fontSize = 10.sp, fontWeight = FontWeight.Black)
+                                Text("ᚱ ᚢ ᚾ ᛖ", color = Red, fontSize = 13.sp, letterSpacing = 2.sp)
                             }
                         }
-                        items(modules.filter { it.first != "Progress" }.chunked(2)) { pair ->
-                            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        items(modules.chunked(2)) { pair ->
+                            Row(horizontalArrangement = Arrangement.spacedBy(11.dp)) {
                                 pair.forEach { m ->
-                                    val target = if (m.first == "Memory Engine") "memory" else "library"
-                                    ForgeModuleCard(
-                                        modifier = Modifier.weight(1f),
-                                        index = modules.indexOf(m) + 1,
-                                        title = m.first,
-                                        subtitle = m.second,
-                                        description = m.third,
-                                        glyph = moduleGlyph(m.first),
-                                        onClick = { section = m.first; page = target; query = ""; filter = "Все / Alle" }
-                                    )
+                                    val index = modules.indexOf(m)
+                                    val route = when(m.first) { "Memory Engine" -> "memory"; "Progress" -> "progress"; else -> "library" }
+                                    val targetSection = if (m.first == "Training Forge") "Training" else m.first
+                                    ForgeImageModuleCard(Modifier.weight(1f), index, m.first, m.second, m.third) {
+                                        section = targetSection; page = route; query = ""; filter = "Все / Alle"
+                                    }
                                 }
                                 if (pair.size == 1) Spacer(Modifier.weight(1f))
                             }
                         }
                         item {
-                            ForgeProgressPanel(
-                                total = lessons.size,
-                                favorites = favorites.size,
-                                onClick = { page = "progress" }
-                            )
+                            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(Surface).border(1.dp, Gold.copy(alpha=.3f), RoundedCornerShape(16.dp)).padding(16.dp)) {
+                                Text("ТВОЙ ПУТЬ / DEIN WEG", color = Gold, fontSize = 10.sp, fontWeight = FontWeight.Bold, letterSpacing = 1.4.sp)
+                                Spacer(Modifier.height(8.dp))
+                                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                                    ForgeMetric("МАТЕРИАЛЫ", lessons.size.toString())
+                                    ForgeMetric("ВЫУЧЕНО", cards.count { it.interval > 0 }.toString())
+                                    ForgeMetric("ИЗБРАННОЕ", favorites.size.toString())
+                                }
+                                Spacer(Modifier.height(9.dp))
+                                LinearProgressIndicator(progress = { if (cards.isEmpty()) 0f else cards.count { it.interval > 0 }.toFloat() / cards.size }, modifier = Modifier.fillMaxWidth().height(5.dp).clip(RoundedCornerShape(8.dp)), color = Red, trackColor = Surface2)
+                            }
                         }
                     }
                 }
