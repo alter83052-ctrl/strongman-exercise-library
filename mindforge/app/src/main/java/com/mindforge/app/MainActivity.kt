@@ -250,6 +250,17 @@ private fun saveNotes(c: Context, notes: List<UserNote>) {
                 page == "library" -> {
                     Header(section) { page = "home" }
                     Column(Modifier.weight(1f).padding(horizontal = 15.dp)) {
+                        val artIndex = when(section) { "Knowledge Base" -> 0; "Language Core" -> 1; "Medical Mind" -> 3; "Stoic Mind" -> 4; "Tactical Mind" -> 5; "Training" -> 7; else -> 0 }
+                        Box(Modifier.fillMaxWidth().height(132.dp).clip(RoundedCornerShape(15.dp)).border(1.dp, Gold.copy(alpha=.4f), RoundedCornerShape(15.dp))) {
+                            ModuleArtwork(artIndex, Modifier.fillMaxSize())
+                            Box(Modifier.fillMaxSize().background(Brush.horizontalGradient(listOf(Color(0xCC08090C), Color(0x2208090C), Color(0xAA08090C)))))
+                            Column(Modifier.align(Alignment.BottomStart).padding(14.dp)) {
+                                Text("ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ", color = Gold, fontSize = 9.sp, letterSpacing = 2.sp)
+                                Text(section.uppercase(), color = TextMain, fontSize = 18.sp, fontWeight = FontWeight.Black, letterSpacing = .8.sp)
+                                Text(modules.firstOrNull { it.first == section || (section == "Training" && it.first == "Training Forge") }?.second ?: "Знания / Wissen", color = Gold, fontSize = 10.sp)
+                            }
+                        }
+                        Spacer(Modifier.height(9.dp))
                         OutlinedTextField(query, { query = it }, Modifier.fillMaxWidth(), label = { Text("Поиск / Suche") }, leadingIcon = { Icon(Icons.Default.Search, null) }, singleLine = true)
                         Row(Modifier.horizontalScroll(rememberScrollState()).padding(vertical = 7.dp), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
                             val filters = listOf("Все / Alle") + lessons.filter { it.section == section }.map { it.tags }.distinct()
@@ -290,6 +301,12 @@ private fun saveNotes(c: Context, notes: List<UserNote>) {
                 page == "memory" -> {
                     Header("Memory Engine / Gedächtnis") { page = "home" }
                     Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(16.dp)) {
+                        Box(Modifier.fillMaxWidth().height(150.dp).clip(RoundedCornerShape(16.dp)).border(1.dp, Gold.copy(alpha=.35f), RoundedCornerShape(16.dp))) {
+                            ModuleArtwork(2, Modifier.fillMaxSize())
+                            Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color(0xDD08090C)))))
+                            Text("ПАМЯТЬ / GEDÄCHTNIS", Modifier.align(Alignment.BottomStart).padding(14.dp), color = TextMain, fontSize = 19.sp, fontWeight = FontWeight.Black)
+                        }
+                        Spacer(Modifier.height(12.dp))
                         Text("ГОТОВАЯ КОЛОДА PFLEGE + DEUTSCH", color = Gold, fontSize = 11.sp, fontWeight = FontWeight.Bold)
                         Text("К повторению: ${due.size} из ${cards.size}", color = TextMuted)
                         Spacer(Modifier.height(12.dp))
@@ -319,6 +336,12 @@ private fun saveNotes(c: Context, notes: List<UserNote>) {
                 page == "progress" -> {
                     Header("Progress / Fortschritt") { page = "home" }
                     Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(18.dp)) {
+                        Box(Modifier.fillMaxWidth().height(145.dp).clip(RoundedCornerShape(16.dp)).border(1.dp, Gold.copy(alpha=.35f), RoundedCornerShape(16.dp))) {
+                            ModuleArtwork(6, Modifier.fillMaxSize())
+                            Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color.Transparent, Color(0xDD08090C)))))
+                            Text("ПРОГРЕСС / FORTSCHRITT", Modifier.align(Alignment.BottomStart).padding(14.dp), color = TextMain, fontSize = 18.sp, fontWeight = FontWeight.Black)
+                        }
+                        Spacer(Modifier.height(12.dp))
                         Text("ТВОЯ СТАТИСТИКА / DEINE STATISTIK", color = Gold, fontWeight = FontWeight.Bold)
                         MetricRow("Материалы в библиотеке / Lerninhalte", lessons.size.toString())
                         MetricRow("Карточки / Karteikarten", cards.size.toString())
