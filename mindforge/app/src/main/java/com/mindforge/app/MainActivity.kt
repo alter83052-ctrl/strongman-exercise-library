@@ -184,12 +184,14 @@ private fun saveNotes(c: Context, notes: List<UserNote>) {
     val sectionLessons = lessons.filter { it.section == section && (filter == "Все / Alle" || it.tags.contains(filter, true)) && (query.isBlank() || (it.titleRu + it.titleDe + it.bodyRu + it.bodyDe + it.tags).contains(query, true)) }
     MaterialTheme(colorScheme = darkColorScheme(primary = Red, background = Bg, surface = Surface, onSurface = TextMain)) {
         Column(Modifier.fillMaxSize().background(Bg)) {
-            Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text("MIND FORGE", color = TextMain, fontSize = 23.sp, fontWeight = FontWeight.Black, letterSpacing = 2.2.sp)
-                    Text("ЗНАНИЯ  •  СИЛА  •  ДИСЦИПЛИНА", color = Red, fontSize = 9.sp, letterSpacing = 1.0.sp)
+            if (page != "home") {
+                Row(Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 13.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f)) {
+                        Text("MIND FORGE", color = TextMain, fontSize = 23.sp, fontWeight = FontWeight.Black, letterSpacing = 2.2.sp)
+                        Text("ᚠ ᚢ ᚦ   •   ЗНАНИЯ  •  СИЛА  •  ДИСЦИПЛИНА", color = Red, fontSize = 9.sp, letterSpacing = 1.0.sp)
+                    }
+                    IconButton(onClick = { page = "reminders" }) { Icon(Icons.Default.Notifications, null, tint = Gold) }
                 }
-                IconButton(onClick = { page = "reminders" }) { Icon(Icons.Default.Notifications, null, tint = Gold) }
             }
             when {
                 page == "home" -> {
@@ -383,6 +385,57 @@ private fun moduleGlyph(s: String) = when(s) {
     "Knowledge Base" -> "K"; "Memory Engine" -> "M"; "Language Core" -> "L"; "Medical Mind" -> "+" 
     "Stoic Mind" -> "S"; "Tactical Mind" -> "T"; "Training Forge" -> "F"; else -> "P"
 }
+@Composable private fun ForgePill(label: String) {
+    Box(Modifier.clip(RoundedCornerShape(6.dp)).background(Color(0xB308090C)).border(1.dp, Gold.copy(alpha=.35f), RoundedCornerShape(6.dp)).padding(horizontal=8.dp, vertical=5.dp)) {
+        Text(label, color = Gold, fontSize = 8.sp, fontWeight = FontWeight.Bold)
+    }
+}
+
+@Composable private fun ModuleArtwork(index: Int, modifier: Modifier = Modifier) {
+    val atlas = ImageBitmap.imageResource(R.drawable.module_atlas)
+    androidx.compose.foundation.Canvas(modifier) {
+        val col = index.coerceIn(0, 7) % 4
+        val row = index.coerceIn(0, 7) / 4
+        drawImage(
+            image = atlas,
+            srcOffset = IntOffset(col * 80, row * 60),
+            srcSize = IntSize(80, 60),
+            dstOffset = IntOffset.Zero,
+            dstSize = IntSize(size.width.toInt(), size.height.toInt())
+        )
+        drawRect(Brush.verticalGradient(listOf(Color(0x11000000), Color(0xCC08090C))))
+    }
+}
+
+@Composable private fun ForgeImageModuleCard(
+    modifier: Modifier,
+    index: Int,
+    title: String,
+    subtitle: String,
+    description: String,
+    onClick: () -> Unit
+) {
+    Column(
+        modifier.height(174.dp).clip(RoundedCornerShape(15.dp))
+            .background(Surface)
+            .border(1.dp, Gold.copy(alpha=.28f), RoundedCornerShape(15.dp))
+            .clickable(onClick = onClick)
+    ) {
+        Box(Modifier.fillMaxWidth().weight(1f)) {
+            ModuleArtwork(index, Modifier.fillMaxSize())
+            Column(Modifier.align(Alignment.BottomStart).padding(11.dp)) {
+                Text("%02d  /  ᚱᚢᚾ".format(index + 1), color = Gold, fontSize = 8.sp, letterSpacing = 1.2.sp)
+                Text(title.uppercase(), color = TextMain, fontSize = 11.sp, fontWeight = FontWeight.Black, letterSpacing = .5.sp, maxLines = 1)
+                Text(subtitle, color = Gold, fontSize = 9.sp, maxLines = 1)
+            }
+        }
+        Row(Modifier.fillMaxWidth().height(37.dp).background(Color(0xFF121317)).padding(horizontal = 10.dp), verticalAlignment = Alignment.CenterVertically) {
+            Text(description, color = TextMuted, fontSize = 8.sp, maxLines = 1, modifier = Modifier.weight(1f))
+            Icon(Icons.Default.ArrowForward, null, tint = Red, modifier = Modifier.size(14.dp))
+        }
+    }
+}
+
 @Composable private fun ForgeHero(due: Int, cards: Int, notes: Int, onStudy: () -> Unit) {
     val pulse = rememberInfiniteTransition(label = "forgeGlow")
     val glow by pulse.animateFloat(
