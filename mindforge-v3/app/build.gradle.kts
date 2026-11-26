@@ -6,7 +6,7 @@ plugins {
 android {
     namespace = "com.mindforge.app"
     compileSdk = 35
-    defaultConfig { applicationId = "com.mindforge.app"; minSdk = 26; targetSdk = 35; versionCode = 3; versionName = "3.0" }
+    defaultConfig { applicationId = "com.mindforge.app"; minSdk = 26; targetSdk = 35; versionCode = 4; versionName = "3.1" }
     buildFeatures { compose = true }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     kotlinOptions { jvmTarget = "17" }
