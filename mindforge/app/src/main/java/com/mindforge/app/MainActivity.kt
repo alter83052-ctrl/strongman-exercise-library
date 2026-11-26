@@ -268,16 +268,21 @@ private fun saveNotes(c: Context, notes: List<UserNote>) {
                         }
                         LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp), contentPadding = PaddingValues(bottom = 15.dp)) {
                             items(sectionLessons) { l ->
-                                Column(Modifier.fillMaxWidth().background(Surface, RoundedCornerShape(12.dp)).border(1.dp, Color(0xFF3A3033), RoundedCornerShape(12.dp)).clickable { selected = l; page = "detail" }.padding(13.dp)) {
-                                    Row(verticalAlignment = Alignment.CenterVertically) {
-                                        Text(l.tags.uppercase(), color = Ember, fontSize = 9.sp, modifier = Modifier.weight(1f))
-                                        IconButton(onClick = { favorites = if (favorites.contains(l.id)) favorites - l.id else favorites + l.id; prefs.edit().putStringSet("favorites", favorites).apply() }) {
-                                            Icon(if (favorites.contains(l.id)) Icons.Default.Star else Icons.Default.StarBorder, null, tint = Gold)
-                                        }
+                                Row(Modifier.fillMaxWidth().clip(RoundedCornerShape(13.dp)).background(Surface).border(1.dp, Color(0xFF40383A), RoundedCornerShape(13.dp)).clickable { selected = l; page = "detail" }.padding(9.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(11.dp)) {
+                                    Box(Modifier.size(76.dp).clip(RoundedCornerShape(9.dp)).border(1.dp, Gold.copy(alpha=.35f), RoundedCornerShape(9.dp))) {
+                                        val art = when(section) { "Knowledge Base" -> 0; "Language Core" -> 1; "Medical Mind" -> 3; "Stoic Mind" -> 4; "Tactical Mind" -> 5; "Training" -> 7; else -> 0 }
+                                        ModuleArtwork(art, Modifier.fillMaxSize())
+                                        Box(Modifier.fillMaxSize().background(Color(0x33000000)))
                                     }
-                                    Text(l.titleRu, color = TextMain, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                                    Text(l.titleDe, color = Gold, fontSize = 13.sp)
-                                    Text(l.bodyRu.take(125) + if (l.bodyRu.length > 125) "…" else "", color = TextMuted, fontSize = 12.sp)
+                                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                                        Text(l.tags.uppercase(), color = Ember, fontSize = 8.sp, letterSpacing = 1.sp)
+                                        Text(l.titleRu, color = TextMain, fontWeight = FontWeight.Bold, fontSize = 14.sp, maxLines = 2)
+                                        Text(l.titleDe, color = Gold, fontSize = 11.sp, maxLines = 2)
+                                        Text(l.bodyRu.take(82) + if (l.bodyRu.length > 82) "…" else "", color = TextMuted, fontSize = 10.sp, maxLines = 2)
+                                    }
+                                    IconButton(onClick = { favorites = if (favorites.contains(l.id)) favorites - l.id else favorites + l.id; prefs.edit().putStringSet("favorites", favorites).apply() }) {
+                                        Icon(if (favorites.contains(l.id)) Icons.Default.Star else Icons.Default.StarBorder, null, tint = Gold)
+                                    }
                                 }
                             }
                         }
@@ -286,6 +291,16 @@ private fun saveNotes(c: Context, notes: List<UserNote>) {
                 page == "detail" && selected != null -> {
                     Header(selected!!.titleRu) { page = "library" }
                     Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(17.dp)) {
+                        Box(Modifier.fillMaxWidth().height(178.dp).clip(RoundedCornerShape(16.dp)).border(1.dp, Gold.copy(alpha=.4f), RoundedCornerShape(16.dp))) {
+                            val art = when(section) { "Knowledge Base" -> 0; "Language Core" -> 1; "Medical Mind" -> 3; "Stoic Mind" -> 4; "Tactical Mind" -> 5; "Training" -> 7; else -> 0 }
+                            ModuleArtwork(art, Modifier.fillMaxSize())
+                            Box(Modifier.fillMaxSize().background(Brush.verticalGradient(listOf(Color(0x22000000), Color(0xDD08090C)))))
+                            Column(Modifier.align(Alignment.BottomStart).padding(15.dp)) {
+                                Text("ᚠ ᚢ ᚦ ᚨ ᚱ ᚲ  •  MIND FORGE", color = Gold, fontSize = 9.sp, letterSpacing = 1.3.sp)
+                                Text(selected!!.titleRu, color = TextMain, fontSize = 21.sp, fontWeight = FontWeight.Black)
+                            }
+                        }
+                        Spacer(Modifier.height(13.dp))
                         Text(selected!!.tags.uppercase(), color = Ember, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                         Text(selected!!.titleDe, color = Gold, fontSize = 17.sp, fontWeight = FontWeight.Bold)
                         Spacer(Modifier.height(16.dp))
