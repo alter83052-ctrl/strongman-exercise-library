@@ -125,7 +125,49 @@ private val lessons=listOf(
 
 )
 private fun getCards(c:Context):MutableList<CardData>{
- val s=c.getSharedPreferences("forge3",0).getString("cards",null) ?: return mutableListOf(CardData("Was bedeutet Körperpflege?","Уход за телом / Maßnahmen zur Erhaltung der Körperhygiene."),CardData("Was ist ein Dekubitus?","Локальное повреждение кожи и/или подлежащих тканей из-за давления."),CardData("Nenne drei Vitalzeichen.","Blutdruck, Puls, Atmung."),CardData("Was ist Primärprävention?","Предупреждение возникновения заболевания."),CardData("Was ist Sekundärprävention?","Раннее выявление заболевания."))
+ val s=c.getSharedPreferences("forge3",0).getString("cards",null)
+ if(s==null) return mutableListOf(
+ CardData("Was bedeutet Körperpflege?","Уход за телом / Maßnahmen zur Erhaltung der Körperhygiene."),
+ CardData("Was ist ein Dekubitus?","Локальное повреждение кожи и/или подлежащих тканей из-за давления."),
+ CardData("Nenne drei Vitalzeichen.","Blutdruck, Puls, Atmung."),
+ CardData("Was ist Primärprävention?","Предупреждение возникновения заболевания."),
+ CardData("Was ist Sekundärprävention?","Раннее выявление заболевания."),
+ CardData("Was bedeutet Sturzprophylaxe?","Профилактика падений."),
+ CardData("Was bedeutet Thromboseprophylaxe?","Профилактика тромбоза."),
+ CardData("Was bedeutet Dehydration?","Обезвоживание / Flüssigkeitsmangel."),
+ CardData("Was ist Intertrigo?","Воспаление кожи в складках из-за влаги и трения."),
+ CardData("Was ist die Epidermis?","Эпидермис — наружный слой кожи."),
+ CardData("Was bedeutet Mobilisation?","Мобилизация — помощь в движении и поддержание подвижности."),
+ CardData("Was ist die Übergabe?","Передача смены и важной информации о Bewohner."),
+ CardData("Was bedeutet Blutdruck?","Артериальное давление."),
+ CardData("Was bedeutet Atemfrequenz?","Частота дыхания."),
+ CardData("Was bedeutet Flüssigkeitsbilanz?","Баланс поступившей и выделенной жидкости."),
+ CardData("Was ist Demenz?","Синдром стойкого снижения когнитивных функций."),
+ CardData("Was ist Diabetes mellitus?","Заболевание с нарушением регуляции уровня глюкозы."),
+ CardData("Nenne die fünf klassischen Entzündungszeichen.","Rubor, Calor, Tumor, Dolor, Functio laesa."),
+ CardData("Was bedeutet Kontraktur?","Стойкое ограничение подвижности сустава."),
+ CardData("Was umfasst die 5-R-Regel?","Правильный Bewohner, препарат, доза, время и путь введения."),
+ CardData("Was ist das Perfekt?","Прошедшее разговорное время: haben/sein + Partizip II."),
+ CardData("Wo steht das Verb nach weil?","В конце придаточного предложения."),
+ CardData("Was bedeutet der Bewohner?","Проживающий, подопечный."),
+ CardData("Was bedeutet die Wunde?","Рана."),
+ CardData("Was bedeutet die Haut?","Кожа."),
+ CardData("Was bedeutet der Muskel?","Мышца."),
+ CardData("Was bedeutet das Gelenk?","Сустав."),
+ CardData("Was bedeutet die Atmung?","Дыхание."),
+ CardData("Was bedeutet die Pflegeplanung?","Планирование ухода."),
+ CardData("Was bedeutet Ressourcen fördern?","Поддерживать и развивать способности человека."),
+ CardData("Was ist ein SMART-Ziel?","Конкретная, измеримая, достижимая, значимая и ограниченная сроком цель."),
+ CardData("Was bedeutet RPE?","Субъективная оценка тяжести подхода."),
+ CardData("Was bedeutet RIR?","Количество повторений в запасе."),
+ CardData("Was ist Farmer’s Walk?","Переноска тяжёлых предметов на дистанцию."),
+ CardData("Was bedeutet progressive Belastung?","Постепенное увеличение тренировочной нагрузки."),
+ CardData("Was ist Periodisierung?","Плановое изменение объёма и интенсивности тренировок."),
+ CardData("Welche vier Kardinaltugenden nennt die Stoa?","Мудрость, справедливость, мужество и умеренность."),
+ CardData("Was ist die Dichotomie der Kontrolle?","Разделение зависящего от нас и не зависящего от нас."),
+ CardData("Was ist aktiver Abruf?","Воспроизведение информации по памяти без подсказки."),
+ CardData("Was bedeutet Energiebilanz?","Соотношение поступающей и расходуемой энергии.")
+ )
  return try{val a=JSONArray(s);MutableList(a.length()){i->val o=a.getJSONObject(i);CardData(o.getString("q"),o.getString("a"),o.optInt("d"),o.optInt("r"))}}catch(e:Exception){mutableListOf()}
 }
 private fun saveCards(c:Context,list:List<CardData>){val a=JSONArray();list.forEach{a.put(JSONObject().put("q",it.q).put("a",it.a).put("d",it.days).put("r",it.reps))};c.getSharedPreferences("forge3",0).edit().putString("cards",a.toString()).apply()}
